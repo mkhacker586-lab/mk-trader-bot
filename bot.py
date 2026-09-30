@@ -26,7 +26,7 @@ def run_web_server():
 
 # Common function jo dono posts bhejayega
 async def send_welcome_posts(chat_id, user_first_name, context):
-    # 1st Post: Photo aur Welcome Message
+    # 1st Post: Photo aur Welcome Message (Sirf isme channel join ka button hoga)
     photo_url = "https://i.postimg.cc/Pvt9mWMg/image.jpg"
     caption_text_1 = (
         f"👑 **M.K TRADER** mein Khush Amdeed, {user_first_name}!\n\n"
@@ -56,7 +56,7 @@ async def send_welcome_posts(chat_id, user_first_name, context):
     # Thoda sa gap dono messages ke darmiyan
     await asyncio.sleep(1)
 
-    # 2nd Post: Quotex Signals, $30 Deposit aur Link wali post
+    # 2nd Post: Quotex Signals, $30 Deposit aur Broker link wala button
     caption_text_2 = (
         "🔥📈 **WANT 10 FREE NON-MTG BUG QUOTEX SIGNALS?**\n\n"
         "👑 Hi guys, ready ho jao profit banane ke liye!\n\n"
@@ -64,12 +64,13 @@ async def send_welcome_posts(chat_id, user_first_name, context):
         "⭐️ **1ST:** Create New Account using our official link:\n"
         "🔗 https://broker-qx.pro/?lid=1614511\n\n"
         "⭐️ **2ND:** Deposit Minimum $30 💵\n\n"
-        "⭐️️ **3RD:** Send your Trader ID for confirmation and get added to M.K VIP Group! 🚀\n\n"
+        "⭐️ **3RD:** Send your Trader ID for confirmation and get added to M.K VIP Group! 🚀\n\n"
         "⏰ **Signals Starting in 5 Minutes!**"
     )
     
+    # Yahan button change kar diya hai taake broker link khule
     keyboard_2 = [
-        [InlineKeyboardButton("🔥 JOIN CHANNEL NOW 🔥", url="https://t.me/+neTu5arl0spkNjFk")],
+        [InlineKeyboardButton("⭐ CLICK HERE AND JOIN VIP ⭐", url="https://broker-qx.pro/?lid=1614511")],
         [InlineKeyboardButton("💬 CONTACT ADMIN", url="https://t.me/MK_TRADER586")]
     ]
 
