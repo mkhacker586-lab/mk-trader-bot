@@ -4,8 +4,7 @@ import asyncio
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, ChatJoinRequestHandler
-from telegram.request import HTTPXRequest
+from telegram.ext import ApplicationBuilder, ContextTypes, ChatJoinRequestHandler, CommandHandler
 
 # Logging setup
 logging.basicConfig(
@@ -25,59 +24,93 @@ def run_web_server():
     server = HTTPServer(("0.0.0.0", port), SimpleHandler)
     server.serve_forever()
 
-async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.chat_join_request.from_user
-    chat = update.chat_join_request.chat
-    
-    print(f"Join request aayi hai: {user.first_name} ki taraf se channel {chat.title} ke liye.")
-    
+# Common function jo dono posts bhejayega
+async def send_welcome_posts(chat_id, user_first_name, context):
+    # 1st Post: Photo aur Welcome Message
     photo_url = "https://i.postimg.cc/Pvt9mWMg/image.jpg"
-    
-    caption_text = (
-        f"👑 **M.K TRADER** mein Khush Amdeed, {user.first_name}!\n\n"
+    caption_text_1 = (
+        f"👑 **M.K TRADER** mein Khush Amdeed, {user_first_name}!\n\n"
         "⚡ **READY FOR PROFITABLE TRADING?**\n\n"
         "📊 **Daily Updates:**\n"
         "• High Accuracy Signals\n"
         "• Smart Market Analysis\n"
         "• VIP Setup & Guidance\n\n"
         "🔗 **Official Channel Links:**\n"
-        "https://t.me/+neTu5arl0spkNjFk\n"
-        "https://t.me/+neTu5arl0spkNjFk\n"
         "https://t.me/+neTu5arl0spkNjFk"
     )
-    
-    keyboard = [
+    keyboard_1 = [
         [InlineKeyboardButton("🚀 JOIN VIP CHANNEL 🚀", url="https://t.me/+neTu5arl0spkNjFk")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
     
     try:
         await context.bot.send_photo(
-            chat_id=user.id,
+            chat_id=chat_id,
             photo=photo_url,
-            caption=caption_text,
+            caption=caption_text_1,
             parse_mode="Markdown",
-            reply_markup=reply_markup
+            reply_markup=InlineKeyboardMarkup(keyboard_1)
         )
-        print(f"Professional post successfully sent to {user.first_name}")
     except Exception as e:
-        print(f"Message nahi ja saka: {e}")
+        print(f"Pehli post nahi gayi: {e}")
+
+    # Thoda sa gap dono messages ke darmiyan
+    await asyncio.sleep(1)
+
+    # 2nd Post: Quotex Signals, $30 Deposit aur Link wali post
+    caption_text_2 = (
+        "🔥📈 **WANT 10 FREE NON-MTG BUG QUOTEX SIGNALS?**\n\n"
+        "👑 Hi guys, ready ho jao profit banane ke liye!\n\n"
+        "💎 **JOIN VIP IN 3 EASY STEPS:**\n\n"
+        "⭐️ **1ST:** Create New Account using our official link:\n"
+        "🔗 https://broker-qx.pro/?lid=1614511\n\n"
+        "⭐️ **2ND:** Deposit Minimum $30 💵\n\n"
+        "⭐️️ **3RD:** Send your Trader ID for confirmation and get added to M.K VIP Group! 🚀\n\n"
+        "⏰ **Signals Starting in 5 Minutes!**"
+    )
+    
+    keyboard_2 = [
+        [InlineKeyboardButton("🔥 JOIN CHANNEL NOW 🔥", url="https://t.me/+neTu5arl0spkNjFk")],
+        [InlineKeyboardButton("💬 CONTACT ADMIN", url="https://t.me/MK_TRADER586")]
+    ]
+
+    try:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=caption_text_2,
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup(keyboard_2)
+        )
+    except Exception as e:
+        print(f"Doosri post nahi gayi: {e}")
+
+# Jab koi channel join request bheje
+async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.chat_join_request.from_user
+    chat = update.chat_join_request.chat
+    print(f"Join request aayi hai: {user.first_name} ki taraf se channel {chat.title} ke liye.")
+    await send_welcome_posts(user.id, user.first_name, context)
+
+# Jab koi /start dabaye
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    print(f"/start command aayi hai: {user.first_name} ki taraf se.")
+    await send_welcome_posts(user.id, user.first_name, context)
 
 async def main_bot():
     TOKEN = "8881957837:AAE6HXQLzFhWvk82CLu4Z1j2ZP1euB9Tdb0"
 
-    custom_request = HTTPXRequest(connect_timeout=30.0, read_timeout=30.0)
-    application = ApplicationBuilder().token(TOKEN).request(custom_request).build()
+    application = ApplicationBuilder().token(TOKEN).build()
 
+    # Handlers add kar rahe hain
     application.add_handler(ChatJoinRequestHandler(handle_join_request))
+    application.add_handler(CommandHandler("start", start_command))
 
-    print("M.K TRADER Bot successfully start ho gaya hai aur requests sun raha hai...")
+    print("M.K TRADER Bot successfully start ho gaya hai aur sab kuch sun raha hai...")
     
     await application.initialize()
     await application.start()
     await application.updater.start_polling()
 
-    # Bot ko chalate rakhne ke liye infinite sleep
     while True:
         await asyncio.sleep(3600)
 
@@ -87,11 +120,8 @@ def run_async_loop():
     loop.run_until_complete(main_bot())
 
 def main():
-    # Web server background thread mein start karo
     server_thread = threading.Thread(target=run_web_server, daemon=True)
     server_thread.start()
-
-    # Bot event loop thread mein start karo
     run_async_loop()
 
 if __name__ == '__main__':
