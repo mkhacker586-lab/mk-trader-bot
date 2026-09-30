@@ -26,7 +26,7 @@ def run_web_server():
 
 # Common function jo dono posts bhejayega
 async def send_welcome_posts(chat_id, user_first_name, context):
-    # 1st Post: Photo aur Welcome Message (Sirf isme channel join ka button hoga)
+    # 1st Post: Photo aur Welcome Message (Yahan teeno links add kar diye hain)
     photo_url = "https://i.postimg.cc/Pvt9mWMg/image.jpg"
     caption_text_1 = (
         f"👑 **M.K TRADER** mein Khush Amdeed, {user_first_name}!\n\n"
@@ -36,8 +36,8 @@ async def send_welcome_posts(chat_id, user_first_name, context):
         "• Smart Market Analysis\n"
         "• VIP Setup & Guidance\n\n"
         "🔗 **Official Channel Links:**\n"
-        "https://t.me/+neneTu5arl0spkNjFk
-        "https://t.me/+neTu5arl0spkNjFk"
+        "https://t.me/+neTu5arl0spkNjFk\n"
+        "https://t.me/+neTu5arl0spkNjFk\n"
         "https://t.me/+neTu5arl0spkNjFk"
     )
     keyboard_1 = [
@@ -70,7 +70,6 @@ async def send_welcome_posts(chat_id, user_first_name, context):
         "⏰ **Signals Starting in 5 Minutes!**"
     )
     
-    # Yahan button change kar diya hai taake broker link khule
     keyboard_2 = [
         [InlineKeyboardButton("⭐ CLICK HERE AND JOIN VIP ⭐", url="https://broker-qx.pro/?lid=1614511")],
         [InlineKeyboardButton("💬 CONTACT ADMIN", url="https://t.me/MK_TRADER586")]
