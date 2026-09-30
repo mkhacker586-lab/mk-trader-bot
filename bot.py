@@ -36,9 +36,9 @@ async def send_welcome_posts(chat_id, user_first_name, context):
         "• Smart Market Analysis\n"
         "• VIP Setup & Guidance\n\n"
         "🔗 **Official Channel Links:**\n"
+        "https://t.me/+neneTu5arl0spkNjFk
         "https://t.me/+neTu5arl0spkNjFk"
-"https://t.me/+neTu5arl0spkNjFk"
-"https://t.me/+neTu5arl0spkNjFk"
+        "https://t.me/+neTu5arl0spkNjFk"
     )
     keyboard_1 = [
         [InlineKeyboardButton("🚀 JOIN VIP CHANNEL 🚀", url="https://t.me/+neTu5arl0spkNjFk")]
