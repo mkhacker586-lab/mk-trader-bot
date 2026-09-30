@@ -1,10 +1,11 @@
 import logging
 import os
+import asyncio
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, ChatJoinRequestHandler
 from telegram.request import HTTPXRequest
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import threading
 
 # Logging setup
 logging.basicConfig(
@@ -12,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# Render ke liye chota sa dummy web server taake port ka error na aaye
+# Render port requirement ke liye dummy web server
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -62,11 +63,7 @@ async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE
     except Exception as e:
         print(f"Message nahi ja saka: {e}")
 
-def main():
-    # Web server ko background mein chalane ke liye thread start kar rahe hain
-    server_thread = threading.Thread(target=run_web_server, daemon=True)
-    server_thread.start()
-
+async def main_bot():
     TOKEN = "8881957837:AAE6HXQLzFhWvk82CLu4Z1j2ZP1euB9Tdb0"
 
     custom_request = HTTPXRequest(connect_timeout=30.0, read_timeout=30.0)
@@ -75,7 +72,27 @@ def main():
     application.add_handler(ChatJoinRequestHandler(handle_join_request))
 
     print("M.K TRADER Bot successfully start ho gaya hai aur requests sun raha hai...")
-    application.run_polling()
+    
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+
+    # Bot ko chalate rakhne ke liye infinite sleep
+    while True:
+        await asyncio.sleep(3600)
+
+def run_async_loop():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main_bot())
+
+def main():
+    # Web server background thread mein start karo
+    server_thread = threading.Thread(target=run_web_server, daemon=True)
+    server_thread.start()
+
+    # Bot event loop thread mein start karo
+    run_async_loop()
 
 if __name__ == '__main__':
     main()
