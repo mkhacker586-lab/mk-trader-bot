@@ -24,9 +24,8 @@ def run_web_server():
     server = HTTPServer(("0.0.0.0", port), SimpleHandler)
     server.serve_forever()
 
-# Common function jo dono posts bhejayega
-async def send_welcome_posts(chat_id, user_first_name, context):
-    # 1st Post: Photo aur Welcome Message (Yahan teeno links add kar diye hain)
+# Function 1: Sirf Pehli Post (Join Request ke liye)
+async def send_first_post_only(chat_id, user_first_name, context):
     photo_url = "https://i.postimg.cc/Pvt9mWMg/image.jpg"
     caption_text_1 = (
         f"👑 **M.K TRADER** mein Khush Amdeed, {user_first_name}!\n\n"
@@ -55,24 +54,40 @@ async def send_welcome_posts(chat_id, user_first_name, context):
     except Exception as e:
         print(f"Pehli post nahi gayi: {e}")
 
+# Function 2: Dono Posts Ek Sath (/start dabane par)
+async def send_both_posts(chat_id, user_first_name, context):
+    # Pehle pehli post bhejo
+    await send_first_post_only(chat_id, user_first_name, context)
+
     # Thoda sa gap dono messages ke darmiyan
     await asyncio.sleep(1)
 
-    # 2nd Post: Quotex Signals, $30 Deposit aur Broker link wala button
+    # Phir doosri (Personal Recovery Session) post bhejo
     caption_text_2 = (
-        "🔥📈 **WANT 10 FREE NON-MTG BUG QUOTEX SIGNALS?**\n\n"
-        "👑 Hi guys, ready ho jao profit banane ke liye!\n\n"
-        "💎 **JOIN VIP IN 3 EASY STEPS:**\n\n"
-        "⭐️ **1ST:** Create New Account using our official link:\n"
-        "🔗 https://broker-qx.pro/?lid=1614511\n\n"
-        "⭐️ **2ND:** Deposit Minimum $30 💵\n\n"
-        "⭐️ **3RD:** Send your Trader ID for confirmation and get added to M.K VIP Group! 🚀\n\n"
-        "⏰ **Signals Starting in 5 Minutes!**"
+        "⭐ WELCOME TO M.K TRADER ⭐\n\n"
+        "🚨 **PERSONAL RECOVERY SESSION OPEN** 🚨\n\n"
+        "📉 Losing trades again and again?\n"
+        "🖤 Low balance? No proper strategy?\n"
+        "⚡️ Time to recover with smart execution!\n\n"
+        "🔥 **PERSONAL 1-on-1 LOSS RECOVERY SESSION** 🔥\n\n"
+        "✅ Special OTC Trading Strategy\n"
+        "✅ Accurate Entry Timing\n"
+        "✅ Controlled Risk Management\n"
+        "✅ Professional Account Handling 💼\n"
+        "✅ Step-by-Step Recovery Plan\n\n"
+        "💫 *Trade Smart — Recover Slowly & Safely* 🚀\n\n"
+        "━━━━━━━━━━━━━━━━━━\n\n"
+        "🎯 **Create Your Account Here:**\n"
+        "🔗 https://broker-qx.pro/?lid=1614510\n\n"
+        "🏦 *Deposit & Send Your Trader ID For Access ✅*\n\n"
+        "━━━━━━━━━━━━━━━━━━\n\n"
+        "🌹 **LIMITED SLOTS AVAILABLE** 💯\n"
+        "💖 *Only Serious Traders Allowed* 💖"
     )
     
     keyboard_2 = [
-        [InlineKeyboardButton("⭐ CLICK HERE AND JOIN VIP ⭐", url="https://broker-qx.pro/?lid=1614511")],
-        [InlineKeyboardButton("💬 CONTACT ADMIN", url="https://t.me/MK_TRADER586")]
+        [InlineKeyboardButton("⭐ CLICK HERE AND JOIN VIP ⭐", url="https://broker-qx.pro/?lid=1614510")],
+        [InlineKeyboardButton("💬 CONTACT FOR PERSONAL SESSION", url="https://t.me/MK_TRADER586")]
     ]
 
     try:
@@ -85,21 +100,21 @@ async def send_welcome_posts(chat_id, user_first_name, context):
     except Exception as e:
         print(f"Doosri post nahi gayi: {e}")
 
-# Jab koi channel join request bheje
+# Jab koi channel join request bheje (Sirf pehli post aayegi)
 async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.chat_join_request.from_user
     chat = update.chat_join_request.chat
     print(f"Join request aayi hai: {user.first_name} ki taraf se channel {chat.title} ke liye.")
-    await send_welcome_posts(user.id, user.first_name, context)
+    await send_first_post_only(user.id, user.first_name, context)
 
-# Jab koi /start dabaye
+# Jab koi /start dabaye (Dono posts ikathi aayengi)
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     print(f"/start command aayi hai: {user.first_name} ki taraf se.")
-    await send_welcome_posts(user.id, user.first_name, context)
+    await send_both_posts(user.id, user.first_name, context)
 
 async def main_bot():
-    TOKEN = "8881957837:AAE6HXQLzFhWvk82CLu4Z1j2ZP1euB9Tdb0"
+    TOKEN = "8567527528:AAHPavhyxDBFDFImZph7gyGvj9PvdVUAuZw"
 
     application = ApplicationBuilder().token(TOKEN).build()
 
