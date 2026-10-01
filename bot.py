@@ -2,6 +2,7 @@ import logging
 import os
 import asyncio
 import threading
+import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, ChatJoinRequestHandler, CommandHandler
@@ -23,6 +24,20 @@ def run_web_server():
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), SimpleHandler)
     server.serve_forever()
+
+# Self-Ping function jo bot ko sone nahi dega (Har 4 minute baad khud ko request marega)
+def self_ping():
+    app_url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not app_url:
+        return
+    while True:
+        try:
+            urllib.request.urlopen(app_url)
+            print("Self-ping successful, bot is active!")
+        except Exception as e:
+            print(f"Self-ping error: {e}")
+        import time
+        time.sleep(240) # Har 4 minute baad
 
 # Function 1: Sirf Pehli Post (Join Request ke liye)
 async def send_first_post_only(chat_id, user_first_name, context):
@@ -56,13 +71,9 @@ async def send_first_post_only(chat_id, user_first_name, context):
 
 # Function 2: Dono Posts Ek Sath (/start dabane par)
 async def send_both_posts(chat_id, user_first_name, context):
-    # Pehle pehli post bhejo
     await send_first_post_only(chat_id, user_first_name, context)
-
-    # Thoda sa gap dono messages ke darmiyan
     await asyncio.sleep(1)
 
-    # Phir doosri (Personal Recovery Session) post bhejo
     caption_text_2 = (
         "⭐ WELCOME TO M.K TRADER ⭐\n\n"
         "🚨 **PERSONAL RECOVERY SESSION OPEN** 🚨\n\n"
@@ -100,14 +111,13 @@ async def send_both_posts(chat_id, user_first_name, context):
     except Exception as e:
         print(f"Doosri post nahi gayi: {e}")
 
-# Jab koi channel join request bheje (Sirf pehli post aayegi)
+# Handlers
 async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.chat_join_request.from_user
     chat = update.chat_join_request.chat
     print(f"Join request aayi hai: {user.first_name} ki taraf se channel {chat.title} ke liye.")
     await send_first_post_only(user.id, user.first_name, context)
 
-# Jab koi /start dabaye (Dono posts ikathi aayengi)
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     print(f"/start command aayi hai: {user.first_name} ki taraf se.")
@@ -118,7 +128,6 @@ async def main_bot():
 
     application = ApplicationBuilder().token(TOKEN).build()
 
-    # Handlers add kar rahe hain
     application.add_handler(ChatJoinRequestHandler(handle_join_request))
     application.add_handler(CommandHandler("start", start_command))
 
@@ -126,7 +135,7 @@ async def main_bot():
     
     await application.initialize()
     await application.start()
-    await application.updater.start_polling()
+    await application.updater.start_polling(drop_pending_updates=True)
 
     while True:
         await asyncio.sleep(3600)
@@ -139,6 +148,10 @@ def run_async_loop():
 def main():
     server_thread = threading.Thread(target=run_web_server, daemon=True)
     server_thread.start()
+    
+    ping_thread = threading.Thread(target=self_ping, daemon=True)
+    ping_thread.start()
+    
     run_async_loop()
 
 if __name__ == '__main__':
